@@ -1,0 +1,118 @@
+        -:    0:Source:priority_queue.c
+        -:    0:Programs:3
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdbool.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "priority_queue.h"
+        -:    6:
+        -:    7:
+        4:    8:Node* pq_enqueue(Node** a_head, void* a_value, int (*cmp_fn)(const void*, const void*)) {
+        -:    9:
+        -:   10:	// if(a_value == NULL) {
+        -:   11:	// 	return NULL;
+        -:   12:	// }
+        4:   13:	Node* current_node = malloc(sizeof(Node));
+        4:   14:	current_node -> a_value = (void*) a_value;
+        4:   15:	current_node -> next = NULL;
+        -:   16:
+        4:   17:	if((*a_head) == NULL) {
+        1:   18:		current_node ->next = NULL;
+        1:   19:		(*a_head) = current_node;
+        -:   20:		//current_node = (*a_head)->a_value;
+        1:   21:		return *a_head; 
+        -:   22:	}
+        -:   23:	
+        -:   24:	//current_node -> a_value = (void*) a_value; //different a_value
+        -:   25:	
+        3:   26:	if(cmp_fn((*a_head)->a_value, current_node->a_value) >= 0){
+    #####:   27:		current_node -> next = (*a_head);
+    #####:   28:		(*a_head) = current_node;
+    #####:   29:		return current_node;
+        -:   30:	}
+        -:   31:	
+        3:   32:	Node* head = *a_head;
+        3:   33:	Node* curr = (*a_head)->next;
+        -:   34:	
+        4:   35:	while(((head->next)!= NULL)&& (cmp_fn(curr->a_value, current_node->a_value))) {
+        3:   36:		if(curr->next!= NULL)
+        -:   37:		{
+        1:   38:			head = head -> next;
+        1:   39:			curr = curr -> next;
+        -:   40:		}
+        2:   41:		else break;
+        -:   42:		
+        -:   43:	}
+        3:   44:	head -> next = current_node;
+        3:   45:	current_node -> next = curr;
+        3:   46:	return current_node;
+        -:   47:}
+        -:   48:
+        -:   49:
+    #####:   50:Node* pq_dequeue(Node** a_head) {
+        -:   51:	// if((*a_head) == NULL){
+        -:   52:	// 	return NULL;
+        -:   53:	// }
+    #####:   54:	Node* current = *a_head;
+    #####:   55:	*a_head = (*a_head) -> next;
+    #####:   56:	current -> next = NULL;
+    #####:   57:	return current;
+        -:   58:
+        -:   59:	// if((*a_head) == NULL){
+        -:   60:	// 	return NULL;
+        -:   61:	// }
+        -:   62:	// else if((*a_head)->next ==NULL) {
+        -:   63:	// 	//Node* current = *a_head;
+        -:   64:	// 	*a_head = NULL;
+        -:   65:	// 	return current;
+        -:   66:	// }
+        -:   67:	// else
+        -:   68:	// {
+        -:   69:	// 	(*a_head) = (*a_head) -> next;
+        -:   70:	// 	current -> next = NULL;
+        -:   71:	// 	return current;
+        -:   72:	// }
+        -:   73:	
+        -:   74:}
+        -:   75:
+        -:   76:
+    #####:   77:Node* stack_push(Node** a_top, void* a_value) {
+        -:   78:	// if(a_value == NULL) {
+        -:   79:	// 	return NULL;
+        -:   80:	// }
+    #####:   81:	Node* temp = malloc(sizeof(Node));
+        -:   82:	// if (temp == NULL){
+        -:   83:	// 	return NULL;
+        -:   84:	// }
+    #####:   85:	temp -> a_value = (void*) a_value; //"(void*) a_value" is a new on stack
+    #####:   86:	temp -> next = *a_top;
+    #####:   87:	*a_top = temp;
+    #####:   88:	return *a_top;
+        -:   89:}
+        -:   90:
+        -:   91:
+    #####:   92:Node* stack_pop(Node** a_top) {
+        -:   93:	// Node* temp = *a_top;
+        -:   94:	// (*a_top) = (*a_top) -> next;
+        -:   95:	// temp -> next = NULL;
+        -:   96:	// return temp;
+    #####:   97:	Node* head  = pq_dequeue(a_top);
+    #####:   98:	return head;
+        -:   99:}
+        -:  100:
+        1:  101:void destroy_list(Node** a_head, void (*destroy_value_fn)(void*)) {
+        -:  102:	// if(*a_head ==NULL){
+        -:  103:	// 	return;
+        -:  104:	// }
+        5:  105:	while (*a_head != NULL)
+        -:  106:	{
+        4:  107:		Node* curren_node = (*a_head)->next;
+        4:  108:		destroy_value_fn((*a_head)->a_value);
+        4:  109:		free(*a_head);
+        4:  110:		(*a_head) = curren_node;
+        -:  111:
+        -:  112:	}
+        1:  113:	return;
+        -:  114:}
+        -:  115:
+        -:  116:#define HUFFMAN_C_V0

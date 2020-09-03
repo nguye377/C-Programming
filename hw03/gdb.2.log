@@ -1,0 +1,107 @@
+Starting program: /home/shay/a/nguye377/264/hw03/prime_factor 
+[Inferior 1 (process 8928) exited normally]
+Breakpoint 1 at 0x4005b8: file prime_factor.c, line 17.
+Starting program: /home/shay/a/nguye377/264/hw03/prime_factor 
+
+Breakpoint 1, print_prime_factors (n=6) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=1) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=0) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=48) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=49) at prime_factor.c:17
+17	    if(n <= 0) {
+Execute until the program reaches a source line greater than the current
+or a specified location (same args as break command) within the current frame.
+21	        printf("Prime factors of %d:", n);
+print_prime_factors (n=49) at prime_factor.c:34
+34	            for(int i = 3; i * i < n; i += 2) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=74) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+[Inferior 1 (process 11923) exited normally]
+The program is not being run.
+Starting program: /home/shay/a/nguye377/264/hw03/prime_factor 
+
+Breakpoint 1, print_prime_factors (n=6) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=1) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=0) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=48) at prime_factor.c:17
+17	    if(n <= 0) {
+Continuing.
+
+Breakpoint 1, print_prime_factors (n=49) at prime_factor.c:17
+17	    if(n <= 0) {
+print_prime_factors (n=49) at prime_factor.c:34
+34	            for(int i = 3; i * i < n; i += 2) {
+37	                while(n % i == 0) {
+34	            for(int i = 3; i * i < n; i += 2) {
+$1 = 49
+$2 = 3
+37	                while(n % i == 0) {
+$3 = 49
+$4 = 5
+34	            for(int i = 3; i * i < n; i += 2) {
+$5 = 49
+$6 = 5
+43	            if(n >= 3) {
+$7 = 49
+44	                printf(" %d", n);
+$8 = 49
+47	        printf("\n");
+$9 = 49
+49	}
+main (argc=1, argv=0x7fffffffdfc8) at test_prime_factor.c:12
+12		print_prime_factors(74); // 2 37
+
+Breakpoint 1, print_prime_factors (n=74) at prime_factor.c:17
+17	    if(n <= 0) {
+21	        printf("Prime factors of %d:", n);
+$10 = 74
+No symbol "i" in current context.
+23	        if(n == 1) {
+28	            while(n % 2 == 0) {
+29	                printf(" %d", 2);
+30	                n /= 2;  // Divide n by 2 (integer division)
+$11 = 74
+28	            while(n % 2 == 0) {
+$12 = 37
+34	            for(int i = 3; i * i < n; i += 2) {
+$13 = 7
+37	                while(n % i == 0) {
+$14 = 37
+$15 = 3
+34	            for(int i = 3; i * i < n; i += 2) {
+$16 = 3
+$17 = 37
+37	                while(n % i == 0) {
+34	            for(int i = 3; i * i < n; i += 2) {
+$18 = 37
+$19 = 5
+43	            if(n >= 3) {
+$20 = 37
+No symbol "i" in current context.
+44	                printf(" %d", n);
+47	        printf("\n");
+49	}

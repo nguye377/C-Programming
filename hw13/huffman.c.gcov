@@ -1,0 +1,35 @@
+        -:    0:Source:huffman.c
+        -:    0:Programs:3
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdbool.h>
+        -:    3:#include <stdlib.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "priority_queue.h"
+        -:    6:#include "frequencies.h"
+        -:    7:#include "huffman.h"
+        -:    8:
+        6:    9:static int _cmp_int(const void* value1, const void* value2) {
+        6:   10:    int val_1 = ((TreeNode*) value1)-> frequency;
+        6:   11:    int val_2 = ((TreeNode*) value2)-> frequency;
+        6:   12:    if(val_1 == val_2){
+        3:   13:        int char_1 = ((TreeNode*) value1) -> character;
+        3:   14:        int char_2 = ((TreeNode*) value2) -> character;
+        3:   15:        return char_1 - char_2;
+        -:   16:        
+        -:   17:    }
+        -:   18:    else
+        -:   19:    {
+        3:   20:        return val_1 - val_2;
+        -:   21:    }
+        -:   22:}
+        1:   23:Node* make_huffman_pq(Frequencies freq) {
+        1:   24:    Node* head = NULL;
+      257:   25:    for(int i = 0; i<256; i++){
+      256:   26:        if(freq[i] != 0){
+        4:   27:            TreeNode* new_node =  malloc(sizeof(*new_node));
+        4:   28:            *new_node = (TreeNode) {.character = i, .frequency = freq[i], .left= NULL, .right = NULL};
+        4:   29:            pq_enqueue(&head, new_node, _cmp_int); 
+        -:   30:        }
+        -:   31:    }
+        1:   32:    return head;
+        -:   33:}

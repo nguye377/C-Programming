@@ -1,0 +1,169 @@
+        -:    0:Source:bmp.c
+        -:    0:Graph:bmp.gcno
+        -:    0:Data:bmp.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdbool.h>
+        -:    2:#include <stdio.h>
+        -:    3:#include <string.h>
+        -:    4:#include <stdlib.h>
+        -:    5:#include <errno.h>
+        -:    6:#include "bmp.h"
+        -:    7:
+        3:    8:BMPImage* read_bmp(FILE* fp, const char** a_error) {
+        -:    9:    //Write code below this line
+        3:   10:    fseek(fp,0, SEEK_END);
+        3:   11:	long int size_file = ftell(fp);
+        3:   12:	fseek(fp, 0, SEEK_SET);
+        3:   13:    BMPImage *image = malloc(sizeof(*image));
+        -:   14:    //Check Mallocc for the Image
+       3*:   15:    if(image == NULL){ *a_error = "Failed! Can not MALLOC\n"; return NULL;
+        -:   16:	}
+        -:   17:    //Check the header
+        3:   18:	fseek(fp, 0, SEEK_SET);
+        -:   19:    //long int check_header = fread(&(image->header),BMP_HEADER_SIZE,1,fp);	
+        3:   20:	long int check_header = fread(&(image->header), sizeof(image->header), 1, fp);
+       3*:   21:	if(check_header != 1){ *a_error = "Failed! Can not read the file HEADER\n"; *a_error = strerror(errno); free(image); return NULL;
+        -:   22:	}
+        -:   23:    //Check the header which is valid or n
+        3:   24:    if((check_bmp_header(&(image->header),fp) == false)){
+        1:   25:		*a_error = "Failed! This header is INVALID\n";
+        1:   26:		free(image);
+        1:   27:		return NULL;
+        -:   28:	}
+        -:   29:    //Check to malloc for the data
+        2:   30:	image->data = NULL;
+        2:   31:	image->data = malloc(sizeof(*(image->data))*(size_file - BMP_HEADER_SIZE));
+       2*:   32:	if(image->data ==NULL){ *a_error = "Failed! Can NOT Malloc for the Data\n"; free(image); return NULL;
+        -:   33:	}
+        -:   34:    //Checking  the reading data???????????????????????
+        2:   35:	size_t  data_check = fread(image->data, sizeof(*(image->data)), size_file - BMP_HEADER_SIZE, fp);
+       2*:   36:	if(data_check!=(size_file - BMP_HEADER_SIZE)){ *a_error = "Failed! Can NOT read Data\n"; free_bmp(image); return NULL;
+        -:   37:	}
+        2:   38:	return image;
+        -:   39:
+        -:   40:}
+        -:   41:
+        4:   42:bool check_bmp_header(const BMPHeader* bmp_header, FILE* fp) {
+        -:   43:    //Write code below this line
+        4:   44:    fseek(fp,0,SEEK_END);
+        4:   45:	long int size = ftell(fp); 
+        4:   46:	fseek(fp,BMP_HEADER_SIZE,SEEK_SET);	
+        4:   47:    if (bmp_header->type != 0x4d42 
+        4:   48:			|| bmp_header->offset != BMP_HEADER_SIZE 
+        4:   49:			|| bmp_header->dib_header_size != DIB_HEADER_SIZE 
+        4:   50:			|| bmp_header->num_planes != 1
+        4:   51:			|| bmp_header-> compression != 0
+        4:   52:			|| bmp_header->num_colors != 0
+        4:   53:			|| bmp_header->important_colors != 0
+       4*:   54:			|| bmp_header->bits_per_pixel != 24) { return false; } 
+        -:   55:
+        4:   56:	size_t width_byte_temp = (bmp_header->bits_per_pixel) * (bmp_header->width_px)/8;
+        4:   57:	if((width_byte_temp %4) != 0){
+        3:   58:		width_byte_temp += (4-(width_byte_temp %4));
+        -:   59:	}
+        4:   60:	if((width_byte_temp*(bmp_header->height_px)!= bmp_header->image_size_bytes)
+        3:   61:              || (size - BMP_HEADER_SIZE != bmp_header->image_size_bytes)){
+        1:   62:		return false;
+        -:   63:	}			
+        3:   64:	return true;
+        -:   65:
+        -:   66:}
+        -:   67:
+        2:   68:bool write_bmp(FILE* fp, BMPImage* image, const char** a_error) {
+        -:   69:    //Write code below this line
+       2*:   70:    if(image == NULL) { *a_error = "Failed! Image is INVALID!\n"; return false;
+        -:   71:    }
+       2*:   72:    if(fp == NULL || ferror(fp)) { *a_error = strerror(errno); return false;
+        -:   73:    }
+        2:   74:    fwrite(&image->header, sizeof(BMPHeader), 1, fp);
+       2*:   75:    if(ferror(fp)) { *a_error = strerror(errno); return false;
+        -:   76:    }
+        -:   77:	int len_data;
+        2:   78:	len_data = image -> header.image_size_bytes;
+        2:   79:    fwrite(image->data, sizeof(*image->data), len_data, fp);
+       2*:   80:    if(ferror(fp)) { *a_error = strerror(errno); return false;
+        -:   81:    }
+        2:   82:    *a_error = NULL;
+        2:   83:    return true;
+        -:   84:}
+        -:   85:
+        4:   86:void free_bmp(BMPImage* image) {
+        4:   87:	if (image != NULL)
+        -:   88:	{
+        4:   89:		if (image -> data != NULL)
+        -:   90:		{
+        4:   91:			free(image -> data);	
+        4:   92:			image -> data = NULL;
+        -:   93:		}
+        4:   94:		free(image);
+        4:   95:		image = NULL;
+        -:   96:	}
+        4:   97:}
+        -:   98:
+        2:   99:BMPImage* crop_bmp(const BMPImage* image, int x, int y, int w, int h, const char** a_error) {
+        -:  100:    // Write my code below this line
+        2:  101:	BMPImage* crop_image = malloc(sizeof(*crop_image));
+       2*:  102:	if(crop_image == NULL){ *a_error = "Failed to allocate the malloc() memory\n"; return NULL;
+        -:  103:	}
+        2:  104:    if (*a_error == NULL) {	
+        2:  105:		crop_image -> data = NULL;
+       2*:  106:		if(x < 0 || y < 0 || w <= 0|| h <= 0) { *a_error = "Failed! Dimension is invalid\n"; return NULL;
+        -:  107:        }
+        2:  108:		if (*a_error == NULL) {
+        2:  109:			crop_image -> header = image -> header;
+        2:  110:			crop_image -> header.width_px = w;
+        2:  111:			crop_image -> header.height_px = h;
+        2:  112:			size_t byte_per_pixel = crop_image -> header.bits_per_pixel / 8;
+        -:  113:            //-------------------------
+        2:  114:            size_t padding_temp_1 = 0;
+        2:  115:            if((byte_per_pixel*w) % 4 != 0) {
+        1:  116:                padding_temp_1 = 4 - ((byte_per_pixel*w) % 4);
+        -:  117:            }
+        -:  118:            // size_t new_padding_per_row = padding_temp_1;
+        -:  119:            //-------------------------
+        2:  120:			size_t padding_new = padding_temp_1 * h;
+        2:  121:			crop_image -> header.image_size_bytes = w * h * byte_per_pixel + padding_new; 
+        2:  122:			crop_image -> header.size = crop_image -> header.image_size_bytes + BMP_HEADER_SIZE;
+        2:  123:			crop_image -> data = malloc(sizeof(*(crop_image -> data)) * crop_image -> header.image_size_bytes);
+       2*:  124:            if(crop_image -> data == NULL) { *a_error = "Failed to allocate the malloc() memory\n"; return NULL;
+        -:  125:            }
+        2:  126:			if (*a_error == NULL) {
+        -:  127:                //-------------------------------------
+        2:  128:                size_t padding_temp_2 = 0;
+        2:  129:                if((byte_per_pixel * image -> header.width_px) % 4 != 0) {
+        1:  130:                padding_temp_2 = 4 - ((byte_per_pixel * image -> header.width_px) % 4);
+        -:  131:                }
+        2:  132:				size_t old_padding_per_row = padding_temp_2;
+        -:  133:                //------------------------------------- 
+        2:  134:				size_t y_temp = y + h - 1;
+        2:  135:				size_t ignored_rows = image -> header.height_px - (y_temp + 1);
+        -:  136:				//Ignore the columns
+        2:  137:                size_t x_temp = x;
+        2:  138:				size_t old_bytes_each_row = byte_per_pixel * image -> header.width_px + old_padding_per_row;
+        2:  139:				size_t starting_index = old_bytes_each_row * ignored_rows + byte_per_pixel *x_temp;
+        2:  140:				size_t counter = 0;
+      156:  141:				for (size_t idx = starting_index; idx < image -> header.image_size_bytes; idx += old_bytes_each_row) {
+      156:  142:					memcpy(crop_image -> data + counter, image -> data + idx, crop_image -> header.width_px * byte_per_pixel);
+      156:  143:					counter += crop_image -> header.width_px * byte_per_pixel;
+      156:  144:                    size_t j = 0;
+      168:  145:                    while(j < padding_temp_1) {
+       12:  146:                        crop_image -> data[counter] = 0;
+       12:  147:						counter++;
+       12:  148:                        j++;
+        -:  149:                    }
+      156:  150:					if (counter >= crop_image -> header.image_size_bytes) {
+        2:  151:						break;
+        -:  152:					}
+        -:  153:				}
+        -:  154:			}
+        -:  155:		}
+        -:  156:	}
+       2*:  157:	if (*a_error != NULL) { if (crop_image != NULL) { free_bmp(crop_image); } return NULL;
+        -:  158:	}
+        2:  159:	return crop_image;
+        -:  160:}
+        -:  161:
+        -:  162:
+        -:  163:
+        -:  164:

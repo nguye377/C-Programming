@@ -1,0 +1,139 @@
+        -:    0:Source:priority_queue.c
+        -:    0:Programs:3
+        -:    1:﻿#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdbool.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "priority_queue.h"
+        -:    6:
+        -:    7:
+       19:    8:Node* pq_enqueue(Node** a_head, void* a_value, int (*cmp_fn)(const void*, const void*)) {
+        -:    9:
+        -:   10:	// if(a_value == NULL) {
+        -:   11:	// 	return NULL;
+        -:   12:	// }
+       19:   13:	Node* current_node = malloc(sizeof(Node)); // Luon dùng pointer cho Struct
+       19:   14:	if(current_node == NULL) {
+    #####:   15:		return NULL;
+        -:   16:	}
+       19:   17:	current_node -> a_value = (void*) a_value;
+       19:   18:	current_node -> next = NULL;
+        -:   19:
+        -:   20:	// Initial Steps
+       19:   21:	if((*a_head) == NULL) {
+        2:   22:		current_node ->next = NULL;
+        2:   23:		(*a_head) = current_node;
+        -:   24:		//current_node = (*a_head)->a_value;
+        2:   25:		return *a_head; 
+        -:   26:	}
+        -:   27:	
+        -:   28:	//current_node -> a_value = (void*) a_value; //different a_value
+        -:   29:	// Swap *a_head bằng node nhỏ hơn 
+        -:   30:	// Nếu *a_head có next
+        -:   31:
+        -:   32:	//*a_head lớn hơn thì swap
+       17:   33:	if(cmp_fn((*a_head)->a_value, current_node->a_value) >= 0){
+        2:   34:		current_node -> next = (*a_head); // head>=current, change
+        2:   35:		(*a_head) = current_node; //a_head has frequency smaller
+        2:   36:		return current_node;
+        -:   37:	}
+        -:   38:	//Current lớn 1: lớn hơn *a_head, nhỏ hơn next
+        -:   39:	//Current lớn 2: lớn hơn *a_head, lớn hơn next
+        -:   40:
+       15:   41:	Node* head = *a_head;
+       15:   42:	Node* curr = (*a_head)->next;
+        -:   43:	
+        -:   44:	// Giữ nguyên *a_head
+        -:   45:	// compare (*a_head)->next->a_value->frequency;
+        -:   46:	// and current_node->a_value->frequency
+        -:   47:	// 
+       51:   48:	while(((head->next)!= NULL)&& (cmp_fn(current_node->a_value, curr->a_value)>=0)) {
+        -:   49:		// curr>=current_node->a_value thì dừng lại
+       36:   50:		if(head->next!= NULL) // cuối chuỗi thì dùng lại
+        -:   51:		{
+       36:   52:			head = head -> next;
+       36:   53:			curr = curr -> next;
+        -:   54:		}
+        -:   55:		else 
+        -:   56:		{
+    #####:   57:			break;
+        -:   58:		}
+        -:   59:		
+        -:   60:	}
+        -:   61:	//if (curr->next != NULL)
+        -:   62:	//{
+        -:   63:		//swap 2 cái khi a_head có đuôi
+        -:   64:		// f of *a_head< current_node < f of *a_head->next
+       15:   65:		head->next = current_node;
+       15:   66:		current_node->next = curr;
+       15:   67:		return current_node;
+        -:   68:	//}
+        -:   69:	return current_node;
+        -:   70:}
+        -:   71:
+        -:   72:
+       18:   73:Node* pq_dequeue(Node** a_head) {
+        -:   74:	// if((*a_head) == NULL){
+        -:   75:	// 	return NULL;
+        -:   76:	// }
+       18:   77:	Node* current = *a_head;
+       18:   78:	*a_head = (*a_head) -> next;
+       18:   79:	current -> next = NULL;
+       18:   80:	return current;
+        -:   81:	// if((*a_head) == NULL){
+        -:   82:	// 	return NULL;
+        -:   83:	// }
+        -:   84:	// else if((*a_head)->next ==NULL) {
+        -:   85:	// 	//Node* current = *a_head;
+        -:   86:	// 	*a_head = NULL;
+        -:   87:	// 	return current;
+        -:   88:	// }
+        -:   89:	// else
+        -:   90:	// {
+        -:   91:	// 	(*a_head) = (*a_head) -> next;
+        -:   92:	// 	current -> next = NULL;
+        -:   93:	// 	return current;
+        -:   94:	// }
+        -:   95:	
+        -:   96:}
+        -:   97:
+        -:   98:
+    #####:   99:Node* stack_push(Node** a_top, void* a_value) {
+        -:  100:	// if(a_value == NULL) {
+        -:  101:	// 	return NULL;
+        -:  102:	// }
+    #####:  103:	Node* temp = malloc(sizeof(Node));
+    #####:  104:	if (temp == NULL){
+    #####:  105:		return NULL;
+        -:  106:	}
+    #####:  107:	temp -> a_value = (void*) a_value; //"(void*) a_value" is a new on stack
+    #####:  108:	temp -> next = *a_top;
+    #####:  109:	*a_top = temp;
+    #####:  110:	return *a_top;
+        -:  111:}
+        -:  112:
+        -:  113:
+    #####:  114:Node* stack_pop(Node** a_top) {
+        -:  115:	// Node* temp = *a_top;
+        -:  116:	// (*a_top) = (*a_top) -> next;
+        -:  117:	// temp -> next = NULL;
+        -:  118:	// return temp;
+    #####:  119:	Node* head  = pq_dequeue(a_top);
+    #####:  120:	return head;
+        -:  121:}
+        -:  122:
+    #####:  123:void destroy_list(Node** a_head, void (*destroy_value_fn)(void*)) {
+    #####:  124:	if(*a_head ==NULL){
+    #####:  125:		return;
+        -:  126:	}
+    #####:  127:	while (*a_head != NULL)
+        -:  128:	{
+    #####:  129:		Node* curren_node = (*a_head)->next;
+    #####:  130:		destroy_value_fn((*a_head)->a_value);
+    #####:  131:		free(*a_head);
+    #####:  132:		(*a_head) = curren_node;
+        -:  133:	}
+    #####:  134:	return;
+        -:  135:}
+        -:  136:
+        -:  137:#define HUFFMAN_C_V0

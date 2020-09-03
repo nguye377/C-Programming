@@ -1,0 +1,55 @@
+        -:    0:Source:count_words.c
+        -:    0:Graph:count_words.gcno
+        -:    0:Data:count_words.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdbool.h>
+        -:    4:#include "count_words.h"
+        -:    5:
+        -:    6:/* count_words.c
+        -:    7: * 
+        -:    8: * This is included as a simple example of code you could test using miniunit.  Use if you
+        -:    9: * find it helpful.  Feel free to modify any way you like.  You will not turn this in.
+        -:   10: *
+        -:   11: * Two bugs were intentionally planted to make testing this code more interesting:
+        -:   12: * ∙ count_words(…) does not count an apostrophe ("'") or hyphen ("-") as part of a word.
+        -:   13: * ∙ The helper _is_letter(…) does not treat "a", "A", "z", and "Z" as letters.
+        -:   14: * 
+        -:   15: * More about this code:
+        -:   16: * ∙ bool is a type that can be true or false.  It requires #include <stdbool.h>.
+        -:   17: * ∙ printf("%u", …) prints an unsigned int.
+        -:   18: */
+        -:   19:
+        -:   20:bool _is_letter(char ch);  // helper
+        -:   21:
+       11:   22:unsigned int count_words(const char* words) {
+       11:   23:	unsigned int num_words = 0;
+       11:   24:	bool in_word = false;
+      202:   25:	for(int i=0; words[i] != '\0'; i++) {
+      191:   26:		if(! in_word && _is_letter(words[i])) {
+       43:   27:			num_words++;
+       43:   28:			in_word = true;
+        -:   29:		}
+      148:   30:		else if(in_word && ! _is_letter(words[i])) {
+       37:   31:			in_word = false;
+        -:   32:		}
+        -:   33:	}
+       11:   34:	return num_words;
+        -:   35:}
+        -:   36:
+        -:   37:
+      191:   38:bool _is_letter(char ch) {
+      191:   39:	if(ch > 'a' && ch < 'z') {
+      137:   40:		return true;
+        -:   41:	}
+       54:   42:	else if(ch > 'A' && ch < 'Z') {
+        3:   43:		return true;
+        -:   44:	}
+        -:   45:	else {
+       51:   46:		return false;
+        -:   47:	}
+        -:   48:}
+        -:   49:
+        -:   50:/* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */

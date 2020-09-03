@@ -1,0 +1,109 @@
+        -:    0:Source:sorts.c
+        -:    0:Graph:sorts.gcno
+        -:    0:Data:sorts.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdlib.h>
+        -:    2:#include <stdio.h>
+        -:    3:#include "sorts.h"
+        -:    4:
+        -:    5://Helper functions
+        -:    6:int _comparation_helper(const void *, const void *);
+        -:    7:BSTNode* _create_new_node(int data);
+        -:    8:void _insert_BST_Node(BSTNode**, int); 
+        -:    9:void _helper_free_tree(BSTNode**);
+        -:   10:void _inorder_traversal_store(BSTNode**, int*, int* );
+        -:   11://------------------------------------------------------
+        -:   12:
+        -:   13:
+       24:   14:int _comparation_helper(const void *left_int, const void *right_int) {
+       24:   15:    return ( *(int*)left_int - *(int*)right_int );
+        -:   16:}
+        -:   17:
+        1:   18:void quick_sort_array(int* array, size_t size) {
+        1:   19:    qsort(array, size, sizeof(array[0]), _comparation_helper);
+        1:   20:}
+        -:   21:
+        2:   22:void tree_sort_array(int* array, size_t size) {
+        -:   23:    //Copy element from Array to Binary Tree
+        2:   24:	int ind = 0; 
+        2:   25:    BST bs_tree = create_bst(array, size);
+        -:   26:	//_store_array(&bs_tree.root, array, &ind);
+        2:   27:    _inorder_traversal_store(&bs_tree.root, array, &ind);
+        2:   28:	empty_bst(&bs_tree);
+        2:   29:	return;
+        -:   30:}
+        -:   31:
+        -:   32://This function does traverse in BST and store in array
+       13:   33:void _inorder_traversal_store(BSTNode** Root, int* array, int *index_ptr) {
+       13:   34:	if (*Root == NULL) {
+        1:   35:		return;
+        -:   36:	}
+        -:   37:    //Update the left subtre --Recursion
+       12:   38:	if ((*Root) -> left != NULL) {
+        7:   39:	    _inorder_traversal_store(&(*Root) -> left, array, index_ptr);
+        -:   40:	}
+        -:   41:    //Update array and  increase pointer
+       12:   42:	array[*index_ptr] = (*Root) -> value;
+       12:   43:	*index_ptr = *index_ptr + 1;
+        -:   44:    //Update the right subtre --Recursion
+       12:   45:	if ((*Root) -> right != NULL) {
+        4:   46:	    _inorder_traversal_store(&(*Root) -> right, array, index_ptr);
+        -:   47:	}
+       12:   48:	return;
+        -:   49:}
+        -:   50:
+        2:   51:BST create_bst(const int* array, int size) {
+        2:   52:	BST bs_tree = { .root = NULL, .size = size};
+        2:   53:	if (size == 0) {
+        1:   54:		return bs_tree;
+        -:   55:	}
+        -:   56:	else {
+        1:   57:        int i = 0;
+       13:   58:        while (i<size) {
+       12:   59:            _insert_BST_Node(&bs_tree.root, array[i]); 
+       12:   60:            i++; 
+        -:   61:        }
+        1:   62:	return bs_tree;
+        -:   63:	}
+        -:   64:}
+        -:   65:
+        -:   66:
+       12:   67:BSTNode* _create_new_node(int data) {
+       12:   68:	BSTNode* temp_node = malloc(sizeof(*temp_node));
+       12:   69:	temp_node -> value = data;
+       12:   70:	temp_node -> left = NULL;
+       12:   71:	temp_node -> right = NULL;
+       12:   72:	return temp_node;
+        -:   73:}
+        -:   74:
+       48:   75:void _insert_BST_Node(BSTNode** node, int key) {
+       48:   76:	if (*node == NULL) {
+       12:   77:		*node = _create_new_node(key);
+       12:   78:		return;
+        -:   79:	}
+       36:   80:	if (key > (*node) -> value) {
+       11:   81:		_insert_BST_Node(&((*node) -> right), key);
+        -:   82:	}
+       25:   83:	else if (key <= (*node) -> value) {
+       25:   84:		_insert_BST_Node(&((*node) -> left), key);
+        -:   85:    }
+        -:   86:}
+        -:   87:
+        2:   88:void empty_bst(BST* bst) {
+        -:   89:    //do something
+        2:   90:    _helper_free_tree(&bst -> root );
+        -:   91:    //return;
+        2:   92:}
+        -:   93:
+       26:   94:void  _helper_free_tree(BSTNode** node) {
+       26:   95:    if(*node != NULL) {
+       12:   96:        _helper_free_tree(&(*node) -> left);
+       12:   97:        _helper_free_tree(&(*node) -> right);
+        -:   98:        // *node -> left  = NULL;
+        -:   99:        // *node-> right = NULL;
+       12:  100:        free(*node);
+       12:  101:        *node = NULL;
+        -:  102:    }
+       26:  103:}
+        -:  104:

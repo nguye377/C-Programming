@@ -1,0 +1,59 @@
+        -:    0:Source:bit_writer.c
+        -:    0:Programs:4
+        -:    1:#include <assert.h>
+        -:    2:#include <stdio.h>
+        -:    3:#include <stdlib.h>
+        -:    4:#include <stdint.h>
+        -:    5:#include <string.h>
+        -:    6:#include <stdbool.h>
+        -:    7:#include "bit_writer.h"
+        -:    8:
+        1:    9:BitWriter open_bit_writer(const char* path) {
+        1:   10:    return (BitWriter) { .file = fopen(path, "w"), .current_byte = 0, .num_bits_left = 8};
+        -:   11:}
+        -:   12:
+    #####:   13:void write_bits(BitWriter* a_writer, uint8_t bits, uint8_t num_bits_to_write) {
+    #####:   14:    assert(num_bits_to_write >= 0 && num_bits_to_write <= 8);
+    #####:   15:    assert(a_writer -> num_bits_left >= 1 && a_writer -> num_bits_left <= 8 );
+        -:   16:    uint8_t temp_current_bits;
+    #####:   17:    if(num_bits_to_write >= 1) {
+    #####:   18:        if(num_bits_to_write > (a_writer -> num_bits_left)) {
+    #####:   19:            num_bits_to_write = (num_bits_to_write) - (a_writer -> num_bits_left);
+    #####:   20:            write_bits(a_writer, (bits >> (num_bits_to_write)), a_writer -> num_bits_left);
+        -:   21:        }
+    #####:   22:        temp_current_bits = (bits <<(8-num_bits_to_write));
+    #####:   23:        temp_current_bits = temp_current_bits >> (8-num_bits_to_write);
+    #####:   24:        temp_current_bits = (temp_current_bits << ((a_writer -> num_bits_left) - num_bits_to_write));
+    #####:   25:        (a_writer->current_byte) = ((a_writer->current_byte) | temp_current_bits);
+        -:   26:
+    #####:   27:        if(((a_writer-> num_bits_left) - num_bits_to_write) == 0) {
+    #####:   28:            fwrite(&(a_writer->current_byte), sizeof(a_writer->current_byte), 1, a_writer->file);
+    #####:   29:            a_writer -> current_byte = 0;
+    #####:   30:            a_writer -> num_bits_left = 8;
+        -:   31:        }
+        -:   32:        else 
+        -:   33:        {
+    #####:   34:        a_writer -> num_bits_left = ((((a_writer->num_bits_left) - num_bits_to_write) + 8 ) % 8);
+        -:   35:        }
+        -:   36:    }
+    #####:   37:    assert(((a_writer -> num_bits_left) >= 1) && ((a_writer -> num_bits_left) <= 8));
+    #####:   38:    return;
+        -:   39:}
+        -:   40:
+    #####:   41:void flush_bit_writer(BitWriter* a_writer) {
+    #####:   42:    write_bits(a_writer, 0, a_writer->num_bits_left);
+    #####:   43:}
+        -:   44:
+        1:   45:void close_bit_writer(BitWriter* a_writer) {
+        1:   46:    while((a_writer -> num_bits_left) != 8 ) {
+    #####:   47:        flush_bit_writer(a_writer);
+    #####:   48:        break;
+        -:   49:    }
+        -:   50:    //flush_bit_writer(a_writer);
+        1:   51:    fclose(a_writer-> file);
+        1:   52:    a_writer->file = NULL;
+        1:   53:}
+        -:   54:
+        -:   55:#define __BIT_WRITER_C_V1__
+        -:   56:/* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab colorcolumn=96: */
+        -:   57:

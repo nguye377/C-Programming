@@ -1,0 +1,18 @@
+123124
+It is snowy, today!
+0b1011000101110 can be converted in decimal as 5678
+0x137ad can be converted in hexa as 79789
+This test is about to print out a negative number: -$1567.34
+This number, $0.04,is less than 1.
+I pet a cute baby dog!
+This test to print out INT_MAX: $2147483647.99
+How about printing INT_MIN: -$2147483648.96
+What is it? === %d
+The fatality rate whe getting CORONA Viruses is 30%
+Soooo, how about this one!?!?! What is it? === 100%
+Ignore the parameters: 7777
+Print out a dollar-sign char $
+The average aldult human body is around 65% water
+%%
+%
+%

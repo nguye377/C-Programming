@@ -1,0 +1,384 @@
+        -:    0:Source:json.c
+        -:    0:Graph:json.gcno
+        -:    0:Data:json.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdlib.h>
+        -:    3:#include <stdbool.h>
+        -:    4:#include <ctype.h>
+        -:    5:#include <string.h>
+        -:    6:#include "json.h"
+        -:    7:
+        -:    8:size_t _str_len(char* str);
+        -:    9:int _helper_value(char* str, int str_len);
+        -:   10:size_t _str_length(char* string);
+        -:   11:void _help_free_list(Node* head);
+        -:   12:
+        -:   13:
+        8:   14:bool parse_int(int* a_value, char** a_pos) {
+        8:   15:    if(isdigit(*(*a_pos)) == false && *(*a_pos) != '-'){
+        3:   16:        return false;
+        -:   17:    }
+        5:   18:    else if(isdigit(*(*a_pos+1)) == false && *(*a_pos) == '-'){
+        2:   19:        *a_pos = *a_pos + 1;
+        2:   20:        return false;
+        -:   21:    }
+        3:   22:    size_t str_len = _str_len(*a_pos);
+        3:   23:    *a_value = _helper_value(*a_pos, str_len);
+        3:   24:    *a_pos = *a_pos + 1;
+        -:   25:    //printf("%d", **a_pos);
+        3:   26:    return true;
+        -:   27:}
+        -:   28:
+        3:   29:size_t _str_len(char* str) {
+        3:   30:    size_t len = 0;
+        3:   31:    if(str[len] == '-') {
+        1:   32:        len = len + 1;
+        -:   33:    }
+       12:   34:    while(isdigit(str[len]) != false){
+        9:   35:        len = len + 1;
+        -:   36:    }
+        3:   37:    return len;
+        -:   38:}
+        -:   39:
+        3:   40:int _helper_value(char* str, int str_len) {
+        3:   41:    int val = 0;
+       12:   42:    for(int i = 0; i < str_len; i++){
+        9:   43:        if(str[i] == '-'){
+        1:   44:            i++;
+        -:   45:        }
+        9:   46:        int pow = 1; //Using for calcualte the powder <----
+        -:   47:        // Compute the power
+       21:   48:        for(int j = 0; j < (str_len - (i+1)); j++){
+       12:   49:            pow = pow* 10;
+        -:   50:        }
+        -:   51:        //Create an temp variable to convert to the number value
+        9:   52:        char temp = str[i];
+        9:   53:        int val_temp = temp;
+        9:   54:        int val_str = val_temp - '0';
+        9:   55:        val = val + val_str*pow;
+        -:   56:    }
+        3:   57:    if(str[0] == '-'){
+        1:   58:        val *=  -1;
+        -:   59:    }
+        3:   60:    return val;
+        -:   61:}
+        -:   62:
+        2:   63:bool parse_string(char** a_string, char** a_pos) {
+        2:   64:    if ((*a_pos)[0] != '"') {
+    #####:   65:        return false;
+        -:   66:    }
+        -:   67:    //Move the position of the pointer
+        -:   68:    //To navigate the character '"'
+        2:   69:    (*a_pos) = (*a_pos) + 1; 
+        -:   70:    int len_str1;
+        -:   71:    int len_str2;
+        -:   72:    char* string_1;
+        -:   73:    char* string_2;
+        2:   74:    int i = 0; //Create an i variable to keep track the position 
+       12:   75:    while((*a_pos)[i] != '\0') {
+       12:   76:		if ((*a_pos)[i] == '\n') {
+        -:   77:            //Looking for '\n'
+        1:   78:            (*a_pos) += i; 
+        1:   79:			return false;
+        -:   80:		}
+       11:   81:		if ((*a_pos)[i] == '"') {
+        1:   82:            (*a_pos) = (*a_pos) - 1;
+        1:   83:            string_1 = strchr((*a_pos),'"');
+        -:   84:            //printf("%s\n", string_1);
+        1:   85:            len_str1 = strlen(string_1) - 1;
+        -:   86:            //printf("%d\n", len_str1);
+        1:   87:            (*a_pos) = (*a_pos) + 1;
+        1:   88:			break;
+        -:   89:		}
+       10:   90:        i++; 
+        -:   91:	}
+        1:   92:    if((*a_pos)[i] == '\0') {
+    #####:   93:        (*a_pos) = (*a_pos) - 1;
+    #####:   94:        return false;
+        -:   95:    }
+        -:   96:    //---------
+        -:   97:    //Move a pointer one more step
+        1:   98:    string_2 =  strchr((*a_pos),'"');
+        -:   99:    //printf("%s\n", string_2);
+        1:  100:    len_str2 = strlen(string_2);
+        -:  101:    //printf("%d\n", len_str2);
+        -:  102:    //Compute the len for Malloc
+        1:  103:    int len_str = len_str1 - len_str2;
+        -:  104:    //Malloc + 1 for the '\0'
+        1:  105:    *a_string = malloc((len_str + 1) * sizeof(**a_string)); 
+        1:  106:    i = 0;
+        5:  107:    while (i < len_str){
+        4:  108:        (*a_string)[i] = (*a_pos)[i];
+        4:  109:        i++;
+        -:  110:    }
+        1:  111:    (*a_string)[i] = '\0';
+        -:  112:    //In terms of '"', we need to plus one
+        1:  113:    (*a_pos) = (*a_pos) + len_str + 1; 
+        1:  114:    return true;
+        -:  115:}
+        -:  116:
+        -:  117:
+        2:  118:bool parse_element(Element* a_element, char** a_pos) {
+        -:  119:    //Increase until i#isspace is FALSE
+        3:  120:    while (isspace(*(*a_pos)) != false){
+        1:  121:        *a_pos = *a_pos + 1;
+        -:  122:    }
+        2:  123:    if (parse_int(&((*a_element).value.as_int), a_pos) == true) 
+        -:  124:    {
+    #####:  125:	    (*a_element).type = ELEMENT_INT;
+    #####:  126:	    return true;
+        -:  127:	}
+        2:  128:	else if(parse_string(&((*a_element).value.as_string), a_pos) == true) 
+        -:  129:    {
+        1:  130:	    (*a_element).type = ELEMENT_STRING;
+        1:  131:	    return true;
+        -:  132:	} 
+        -:  133:    //Remember condition for #LIST
+        1:  134:    else if(parse_list(&((*a_element).value.as_list), a_pos) == true) {
+    #####:  135:		(*a_element).type = ELEMENT_LIST;
+    #####:  136:		return true;
+        -:  137:	}
+        -:  138:	else 
+        -:  139:    {
+        1:  140:        return false;
+        -:  141:    }
+        -:  142:    
+        -:  143:}
+        -:  144:
+        1:  145:void print_element(Element element) {
+        1:  146:	if(element.type == ELEMENT_INT) {
+    #####:  147:		printf("%d", element.value.as_int);
+        -:  148:	}
+        1:  149:	else if(element.type == ELEMENT_STRING) {
+        1:  150:		printf("\"%s\"", element.value.as_string);
+        -:  151:	}
+        -:  152:    //ELEMENT_LIST
+    #####:  153:    else if(element.type == ELEMENT_LIST) {
+        -:  154:	    //Opening of the List
+    #####:  155:        printf("[");
+        -:  156:        //Set a temp node with naming as "curr" as a current node
+    #####:  157:        Node* curr = element.value.as_list;
+    #####:  158:        while (curr != NULL) {
+    #####:  159:		    print_element(curr -> element);
+    #####:  160:		    if (curr -> next != NULL) {
+    #####:  161:			printf(",");
+        -:  162:		}
+    #####:  163:        curr = curr -> next;
+        -:  164:	}
+        -:  165:        //End of the List 
+    #####:  166:		printf("]");
+        -:  167:	}
+        1:  168:}
+        -:  169:
+        -:  170:
+        -:  171:/*
+        -:  172:bool parse_list(Node** a_head, char** a_pos) {
+        -:  173:	if (**a_pos != '[') {
+        -:  174:		return false;
+        -:  175:	}
+        -:  176:    //Move into the next position to check the linked list
+        -:  177:	*a_pos += 1; 
+        -:  178:	*a_head = NULL;
+        -:  179:	Node* tail = NULL;
+        -:  180:	Node* inserted_node = NULL;
+        -:  181:    //Set a condition to check the connection between two node
+        -:  182:	bool node_connected = false; 
+        -:  183:    while (**a_pos != '\0') { 
+        -:  184:        //Condition to check in order to insert a new node
+        -:  185:        int i = 0; 
+        -:  186:		inserted_node = NULL;
+        -:  187:		node_connected = false;
+        -:  188:        while (isspace(*(*a_pos)) == true) { //Check space
+        -:  189:            *a_pos += 1;
+        -:  190:        }
+        -:  191:		if (isdigit(**a_pos) != false || **a_pos == '-') {
+        -:  192:			inserted_node = malloc(sizeof(*inserted_node));
+        -:  193:			if (parse_int(&(inserted_node -> element.value.as_int), a_pos) == false) 
+        -:  194:            {
+        -:  195:				break;
+        -:  196:			}
+        -:  197:			else 
+        -:  198:            {
+        -:  199:				inserted_node -> element.type = ELEMENT_INT;
+        -:  200:			}
+        -:  201:		}
+        -:  202:		else if (**a_pos == '"') {
+        -:  203:			inserted_node = malloc(sizeof(*inserted_node));
+        -:  204:			if (parse_string(&(inserted_node -> element.value.as_string), a_pos) == false) 
+        -:  205:            {
+        -:  206:				break;
+        -:  207:			}
+        -:  208:			else 
+        -:  209:            {
+        -:  210:				inserted_node -> element.type = ELEMENT_STRING;
+        -:  211:			}
+        -:  212:		}
+        -:  213:        else if (**a_pos == '[') {
+        -:  214:			inserted_node = malloc(sizeof(*inserted_node));
+        -:  215:			if (parse_list(&(inserted_node -> element.value.as_list), a_pos) == false) 
+        -:  216:            {
+        -:  217:				break;
+        -:  218:			}
+        -:  219:			else 
+        -:  220:            {
+        -:  221:				inserted_node -> element.type = ELEMENT_LIST;
+        -:  222:			}
+        -:  223:		}
+        -:  224:        
+        -:  225:		// else if (**a_pos == 't' || **a_pos == 'f') {
+        -:  226:		// 	inserted_node = malloc(sizeof(*inserted_node));
+        -:  227:		// 	if (_parse_bool(&(inserted_node -> element.value.as_bool), a_pos) == false) {
+        -:  228:		// 		break;
+        -:  229:		// 	}
+        -:  230:		// 	else {
+        -:  231:		// 		inserted_node -> element.type = ELEMENT_BOOL;
+        -:  232:		// 	}
+        -:  233:		// }
+        -:  234:		// else if (**a_pos == 'n') {
+        -:  235:		// 	inserted_node = malloc(sizeof(*inserted_node));
+        -:  236:		// 	if (_parse_null(&(inserted_node -> element.value.as_null), a_pos) == false) {
+        -:  237:		// 		break;
+        -:  238:		// 	}
+        -:  239:		// 	else {
+        -:  240:		// 		inserted_node -> element.type = ELEMENT_NULL;
+        -:  241:		// 	}
+        -:  242:		// }
+        -:  243:
+        -:  244:		if (inserted_node != NULL) {
+        -:  245:			inserted_node -> next = NULL;
+        -:  246:			if (i == 0) 
+        -:  247:            {
+        -:  248:				*a_head = inserted_node;
+        -:  249:				tail = inserted_node;
+        -:  250:			}
+        -:  251:			else 
+        -:  252:            {
+        -:  253:				tail -> next = inserted_node;
+        -:  254:				tail = inserted_node;
+        -:  255:			}
+        -:  256:			node_connected = true; //two nodes are connected
+        -:  257:		}
+        -:  258:        while (isspace(*(*a_pos)) != false) {
+        -:  259:            *a_pos += 1;
+        -:  260:        }
+        -:  261:		
+        -:  262:		if (**a_pos == ']') {
+        -:  263:			if (inserted_node != NULL) {
+        -:  264:				tail -> next = NULL;
+        -:  265:			}
+        -:  266:			*a_pos += 1;
+        -:  267:			return true;
+        -:  268:		}
+        -:  269:        else if (**a_pos == ',') {
+        -:  270:			if (inserted_node == NULL) break;
+        -:  271:		}
+        -:  272:		else {
+        -:  273:            break;
+        -:  274:        }
+        -:  275:        //Keep increasing imto keep track
+        -:  276:		i = i + 1;
+        -:  277:        *a_pos += 1; // Go to the next position to check
+        -:  278:	}
+        -:  279:	if (inserted_node != NULL && !node_connected) { //if new_node is not linked to list, free it seperately from the list
+        -:  280:		free(inserted_node);
+        -:  281:	}
+        -:  282:	_help_free_list(*a_head);
+        -:  283:	return false;
+        -:  284:}
+        -:  285:*/
+        -:  286:
+        1:  287:void free_element(Element element) {
+        1:  288:    if(element.type == ELEMENT_STRING) free(element.value.as_string);
+    #####:  289:    else if (element.type == ELEMENT_LIST) {
+    #####:  290:        _help_free_list(element.value.as_list);
+        -:  291:    }
+        1:  292:}
+        -:  293:
+        3:  294:void _help_free_list(Node* head) {
+        3:  295:	while (head != NULL) {
+    #####:  296:		Node* temp_node = head;
+    #####:  297:		head = head -> next;
+    #####:  298:		free_element(temp_node -> element);
+    #####:  299:		free(temp_node);
+        -:  300:	}
+        3:  301:}
+        -:  302:
+        4:  303:bool parse_list(Node** a_head, char** a_pos) {
+        4:  304:	if (**a_pos != '[') {
+        1:  305:		return false;
+        -:  306:	}
+        3:  307:	*a_pos += 1;
+        3:  308:	*a_head = NULL;
+        3:  309:	Node* tail = NULL;
+        3:  310:	Node* new_node = NULL;
+        3:  311:	bool linked = false; // a flag to see if the new node is linked to the list
+       3*:  312:	for(int i = 0; **a_pos != '\0'; *a_pos += 1) { 
+        3:  313:		new_node = NULL;
+        3:  314:		linked = false;
+       3*:  315:		for(; isspace(*(*a_pos)) != false; *a_pos += 1);
+        3:  316:		if (**a_pos == '[') {
+        1:  317:			new_node = malloc(sizeof(*new_node));
+        1:  318:			if (parse_list(&(new_node -> element.value.as_list), a_pos) == false) {
+        1:  319:				break;
+        -:  320:			}
+        -:  321:			else {
+    #####:  322:				new_node -> element.type = ELEMENT_LIST;
+        -:  323:			}
+        -:  324:		}
+        2:  325:		else if (isdigit(**a_pos) != false || **a_pos == '-') {
+        2:  326:			new_node = malloc(sizeof(*new_node));
+       2*:  327:			if (parse_int(&(new_node -> element.value.as_int), a_pos) == false) {
+        2:  328:				break;
+        -:  329:			}
+        -:  330:			else {
+    #####:  331:				new_node -> element.type = ELEMENT_INT;
+        -:  332:			}
+        -:  333:		}
+    #####:  334:		else if (**a_pos == '"') {
+    #####:  335:			new_node = malloc(sizeof(*new_node));
+    #####:  336:			if (parse_string(&(new_node -> element.value.as_string), a_pos) == false) {
+    #####:  337:				break;
+        -:  338:			}
+        -:  339:			else {
+    #####:  340:				new_node -> element.type = ELEMENT_STRING;
+        -:  341:			}
+        -:  342:		}
+        -:  343:		
+    #####:  344:		if (new_node != NULL) {
+    #####:  345:			new_node -> next = NULL;
+    #####:  346:			if (i == 0) {
+    #####:  347:				*a_head = new_node;
+    #####:  348:				tail = new_node;
+        -:  349:			}
+        -:  350:			else {
+    #####:  351:				tail -> next = new_node;
+    #####:  352:				tail = new_node;
+        -:  353:			}
+    #####:  354:			linked = true; //set linked to true when new_node is linked to list
+        -:  355:		}
+    #####:  356:		for(; isspace(*(*a_pos)) != false; *a_pos += 1);
+    #####:  357:		if (**a_pos == ',') {
+    #####:  358:			if (new_node == NULL) {
+    #####:  359:				break;
+        -:  360:			}
+        -:  361:		}
+    #####:  362:		else if (**a_pos == ']') {
+    #####:  363:			if (new_node != NULL) {
+    #####:  364:				tail -> next = NULL;
+        -:  365:			}
+    #####:  366:			*a_pos += 1;
+    #####:  367:			return true;
+        -:  368:		}
+        -:  369:		else {
+    #####:  370:			break;
+        -:  371:		}
+    #####:  372:		i++;
+        -:  373:	}
+        3:  374:	if (!linked && new_node != NULL) { //if new_node is not linked to list, free it seperately from the list
+        3:  375:		free(new_node);
+        -:  376:	}
+        3:  377:	_help_free_list(*a_head);
+        3:  378:	return false;
+        -:  379:}

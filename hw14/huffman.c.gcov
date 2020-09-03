@@ -1,0 +1,98 @@
+        -:    0:Source:huffman.c
+        -:    0:Programs:3
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdbool.h>
+        -:    3:#include <stdlib.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "priority_queue.h"
+        -:    6:#include "frequencies.h"
+        -:    7:#include "huffman.h"
+        -:    8:
+       62:    9:static int _cmp_int(const void* value1, const void* value2) {
+       62:   10:    int val_1 = ((TreeNode*) value1)-> frequency;
+       62:   11:    int val_2 = ((TreeNode*) value2)-> frequency;
+       62:   12:    if(val_1 != val_2){
+       48:   13:        return val_1 -  val_2;        
+        -:   14:    }
+        -:   15:    else {
+       14:   16:        int char_1 = ((TreeNode*) value1) -> character;
+       14:   17:        int char_2 = ((TreeNode*) value2) -> character;
+       14:   18:	    if(char_1 == '\0') {
+        7:   19:		    return 1;
+        -:   20:	    }
+        7:   21:        return char_1 - char_2;//return 0
+        -:   22:    }
+        -:   23:}
+        -:   24:
+        1:   25:Node* make_huffman_pq(Frequencies freq) {
+        -:   26:    // if(freq == NULL) {
+        -:   27:    //     return NULL;
+        -:   28:    // }
+        1:   29:    Node* head = NULL;
+      257:   30:    for(int i = 0; i<256; i++){
+      256:   31:        if(freq[i] != 0){
+       10:   32:            TreeNode* new_node =  malloc(sizeof(*new_node));
+        -:   33:            // if(new_node == NULL) {
+        -:   34:            //     return NULL;
+        -:   35:            // }
+       20:   36:            *new_node = (TreeNode) {.character = i, 
+       10:   37:                                    .frequency = freq[i], 
+        -:   38:                                    .left= NULL, 
+        -:   39:                                    .right = NULL};
+       10:   40:            pq_enqueue(&head, new_node, _cmp_int); 
+        -:   41:        }
+        -:   42:    }
+        1:   43:    return head;
+        -:   44:}
+        -:   45:
+        1:   46:TreeNode* make_huffman_tree(Node* head) {
+        -:   47:	// if(head == NULL) {
+        -:   48:	// 	return NULL;
+        -:   49:	// }
+       10:   50:    	while(head -> next != NULL) {
+        9:   51:        Node* left = pq_dequeue(&head);
+        9:   52:        Node* right = pq_dequeue(&head);
+        9:   53:        TreeNode* left_tree = left -> a_value;
+        9:   54:        TreeNode* right_tree = right -> a_value;
+        9:   55:        TreeNode* parent  = malloc(sizeof(*parent));
+        -:   56:	    // if(parent == NULL) {
+        -:   57:		//     return NULL;
+        -:   58:	    // }
+        9:   59:        *parent = (struct TreeNode) {.character = '\0',
+        9:   60:                                     .frequency = (left_tree -> frequency)+ (right_tree -> frequency),
+        -:   61:                                     .left = left_tree,
+        -:   62:                                     .right = right_tree}; 
+        9:   63:        free(left);
+        9:   64:	    free(right);
+        9:   65:        pq_enqueue(&head, parent, _cmp_int);
+        -:   66:        //head = head -> next;    
+        -:   67:    }
+        1:   68:    TreeNode* a_head = a_head = head -> a_value;
+        1:   69:    free(head);
+        -:   70:    
+        1:   71:    return a_head;
+        -:   72:}
+        -:   73:
+       39:   74:void destroy_huffman_tree(TreeNode** a_root) {
+       39:   75:    if((*a_root) == NULL) {
+       20:   76:        free((*a_root));
+       20:   77:        return;
+        -:   78:    }
+       19:   79:    destroy_huffman_tree(&(*a_root)->left);
+       19:   80:    destroy_huffman_tree(&(*a_root)->right);
+       19:   81:    free(*a_root);
+       19:   82:    *a_root = NULL;
+       19:   83:    return;
+        -:   84:}
+        -:   85:
+       39:   86:void _helper_print(TreeNode* tree) {
+       39:   87:    if(tree == NULL){
+       20:   88:        return;
+        -:   89:     }
+       19:   90:    _helper_print(tree->left);
+       19:   91:    _helper_print(tree->right);
+       19:   92:    if(tree -> character != 0) {
+       10:   93:        printf("%c: %ld\n", tree->character, tree -> frequency);
+        -:   94:    }
+        -:   95:}
+        -:   96:

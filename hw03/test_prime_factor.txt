@@ -1,0 +1,6 @@
+Prime factors of 6: 2 3
+Prime factors of 1: (none)
+Only positive numbers are supported.
+Prime factors of 48: 2 2 2 2 3
+Prime factors of 49: 7 7
+Prime factors of 74: 2 37

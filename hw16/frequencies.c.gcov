@@ -1,0 +1,36 @@
+        -:    0:Source:frequencies.c
+        -:    0:Programs:4
+        -:    1:#include <stdio.h>
+        -:    2:#include <string.h>
+        -:    3:#include <errno.h>
+        -:    4:#include <stdint.h>
+        -:    5:#include "frequencies.h"
+        -:    6:#include <stdbool.h>
+        -:    7:#include <inttypes.h>
+        -:    8:#include <stdlib.h>
+        -:    9:
+        1:   10:bool calc_frequencies(Frequencies freqs, const char* path, const char** a_error) {
+        -:   11:    //Open file 
+        1:   12:    FILE* fp_open = fopen(path, "r");
+        -:   13:    //Check the file is valid or not
+        1:   14:    if(fp_open != NULL) {
+        -:   15:        //Find the freqencies
+       25:   16:        for(uchar ch = fgetc(fp_open); !feof(fp_open); ch = fgetc(fp_open))
+        -:   17:        {
+       24:   18:            freqs[ch]+=1;
+        -:   19:        }
+        -:   20:        //--------Print all the "char" and their frequencies------------
+        -:   21:        // for(int k=0; k<256; k++) {
+        -:   22:        //     if(freqs[k] > 0) {
+        -:   23:        //         printf("Char %c: %" PRIu64 " times \n", k, freqs[k]);
+        -:   24:        //     }
+        -:   25:        // }
+        -:   26:    }
+        -:   27:    //If file is not valid
+        -:   28:    else {
+    #####:   29:        *a_error = strerror(errno);
+    #####:   30:        return false;
+        -:   31:    }
+        1:   32:    fclose(fp_open);
+        1:   33:    return true;
+        -:   34:}

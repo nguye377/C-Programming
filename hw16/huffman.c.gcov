@@ -1,0 +1,131 @@
+        -:    0:Source:huffman.c
+        -:    0:Programs:4
+        -:    1:#include <stdio.h>
+        -:    2:#include <stdbool.h>
+        -:    3:#include <stdlib.h>
+        -:    4:#include <assert.h>
+        -:    5:#include "priority_queue.h"
+        -:    6:#include "frequencies.h"
+        -:    7:#include "huffman.h"
+        -:    8:#include "bit_writer.h"
+        -:    9:
+       62:   10:static int _cmp_int(const void* value1, const void* value2) {
+       62:   11:    int val_1 = ((TreeNode*) value1)-> frequency;
+       62:   12:    int val_2 = ((TreeNode*) value2)-> frequency;
+       62:   13:    if(val_1 != val_2){
+       48:   14:        return val_1 -  val_2;        
+        -:   15:    }
+        -:   16:    else {
+       14:   17:        int char_1 = ((TreeNode*) value1) -> character;
+       14:   18:        int char_2 = ((TreeNode*) value2) -> character;
+       14:   19:	    if(char_1 == '\0') {
+        7:   20:		    return 1;
+        -:   21:	    }
+        7:   22:        return char_1 - char_2;//return 0
+        -:   23:    }
+        -:   24:}
+        -:   25:
+        1:   26:Node* make_huffman_pq(Frequencies freq) {
+        -:   27:    // if(freq == NULL) {
+        -:   28:    //     return NULL;
+        -:   29:    // }
+        1:   30:    Node* head = NULL;
+      257:   31:    for(int i = 0; i<256; i++){
+      256:   32:        if(freq[i] != 0){
+       10:   33:            TreeNode* new_node =  malloc(sizeof(*new_node));
+        -:   34:            // if(new_node == NULL) {
+        -:   35:            //     return NULL;
+        -:   36:            // }
+       20:   37:            *new_node = (TreeNode) {.character = i, 
+       10:   38:                                    .frequency = freq[i], 
+        -:   39:                                    .left= NULL, 
+        -:   40:                                    .right = NULL};
+       10:   41:            pq_enqueue(&head, new_node, _cmp_int); 
+        -:   42:        }
+        -:   43:    }
+        1:   44:    return head;
+        -:   45:}
+        -:   46:
+        -:   47://------------------HW14--------------------------
+        -:   48:
+        1:   49:TreeNode* make_huffman_tree(Node* head) {
+        -:   50:	// if(head == NULL) {
+        -:   51:	// 	return NULL;
+        -:   52:	// }
+       10:   53:    	while(head -> next != NULL) {
+        9:   54:        Node* left = pq_dequeue(&head);
+        9:   55:        Node* right = pq_dequeue(&head);
+        9:   56:        TreeNode* left_tree = left -> a_value;
+        9:   57:        TreeNode* right_tree = right -> a_value;
+        9:   58:        TreeNode* parent  = malloc(sizeof(*parent));
+        -:   59:	    // if(parent == NULL) {
+        -:   60:		//     return NULL;
+        -:   61:	    // }
+        9:   62:        *parent = (struct TreeNode) {.character = '\0',
+        9:   63:                                     .frequency = (left_tree -> frequency)+ (right_tree -> frequency),
+        -:   64:                                     .left = left_tree,
+        -:   65:                                     .right = right_tree}; 
+        9:   66:        free(left);
+        9:   67:	    free(right);
+        9:   68:        pq_enqueue(&head, parent, _cmp_int);
+        -:   69:        //head = head -> next;    
+        -:   70:    }
+        1:   71:    TreeNode* a_head = a_head = head -> a_value;
+        1:   72:    free(head);
+        -:   73:    
+        1:   74:    return a_head;
+        -:   75:}
+        -:   76:
+       39:   77:void destroy_huffman_tree(TreeNode** a_root) {
+       39:   78:    if((*a_root) == NULL) {
+       20:   79:        free((*a_root));
+       20:   80:        return;
+        -:   81:    }
+       19:   82:    destroy_huffman_tree(&(*a_root)->left);
+       19:   83:    destroy_huffman_tree(&(*a_root)->right);
+       19:   84:    free(*a_root);
+       19:   85:    *a_root = NULL;
+       19:   86:    return;
+        -:   87:}
+        -:   88:// // --------Uncomment the helper function below to see the Huffman Tree-----------------
+        -:   89:// void _helper_print(TreeNode* tree) {
+        -:   90://     if(tree == NULL){
+        -:   91://         return;
+        -:   92://      }
+        -:   93://     _helper_print(tree->left);
+        -:   94://     _helper_print(tree->right);
+        -:   95://     if(tree -> character != 0) {
+        -:   96://         printf("%c: %ld\n", tree->character, tree -> frequency);
+        -:   97://     }
+        -:   98:// }
+        -:   99:
+        -:  100:// //-----------------------------#######################----------------------------------
+        -:  101:
+        -:  102://EEVERYTHING ABOVE THIS LINE, HERE IS FROM HW11-HW12-HW13-HW14
+        -:  103://----------------BELOW THIS LINE IS HOW16------------------------
+        -:  104:
+       39:  105:void write_coding_table(TreeNode* root, BitWriter* a_writer) {
+       39:  106:    if(root == NULL) {
+       20:  107:        return;
+        -:  108:    }
+       19:  109:    write_coding_table(root->left, (a_writer));
+       19:  110:    write_coding_table(root->right, (a_writer));
+       19:  111:    if(root->left == NULL && root->right == NULL) {
+        -:  112:        //fputc('1',a_writer->file)
+       10:  113:        fprintf(a_writer->file,"%d",1);
+        -:  114:        // write_bits(&a_writer, root->character, 8);
+        -:  115:        // fputc(root->character, a_writer->file);
+       10:  116:        return;
+        -:  117:    }
+        -:  118:    else {
+        -:  119:        
+        9:  120:        fprintf(a_writer->file,"%d",0);
+        9:  121:        return;
+        -:  122:    }
+        -:  123:}
+        -:  124:
+        -:  125://-----------------BELOW IS HW17----------------------------
+        -:  126:// void write_compressed(TreeNode* root, BitWriter* a_writer, uint8_t uncompressed_bytes) {
+        -:  127:
+        -:  128:// }
+        -:  129:
